@@ -1,0 +1,32 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+
+spring:
+  application:
+    name: chunked-file-upload
+  
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 2GB
+      max-request-size: 2GB
+      file-size-threshold: 10MB
+
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+
+upload:
+  temp-path: ./uploads/temp
+  file-path: ./uploads/files
+  chunk-size: 5242880
+  max-file-size: 2147483648
+  cleanup-interval: 86400000
+
+logging:
+  level:
+    com.upload: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
