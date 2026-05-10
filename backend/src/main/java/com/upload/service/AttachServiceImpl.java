@@ -4,6 +4,10 @@ import com.upload.model.AttachResult;
 import com.upload.model.ServiceParams;
 import com.upload.model.UploadTask;
 import com.upload.repository.UploadTaskRepository;
+import com.upload.business.DataPlatformMixBusiness;
+import com.upload.business.AttachBusiness;
+import com.upload.model.AttachParam;
+import com.upload.model.ObjectStorageModel;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,9 +35,6 @@ public class AttachServiceImpl implements AttachService {
     @Autowired
     private UploadTaskRepository taskRepository;
     
-    @Autowired
-    private FileStorageService fileStorageService;
-    
     @Value("${upload.chunk-size:5242880}")
     private int defaultChunkSize;
     
@@ -42,6 +43,13 @@ public class AttachServiceImpl implements AttachService {
     
     @Value("${upload.cleanup-interval:86400000}")
     private long cleanupInterval;
+    
+    private AttachBusiness attachBusiness;
+    
+    @Autowired
+    public void setAttachBusiness(DataPlatformMixBusiness mixBusiness) {
+        this.attachBusiness = mixBusiness;
+    }
     
     private static final Set<String> ALLOWED_EXTENSIONS = new HashSet<>(Arrays.asList(
             "jpg", "jpeg", "png", "gif", "bmp", "webp",
@@ -102,6 +110,9 @@ public class AttachServiceImpl implements AttachService {
         }
         
         int totalChunks = (int) Math.ceil((double) fileSize / chunkSize);
+        if (totalChunks == 0) {
+            totalChunks = 1;
+        }
         
         String fileCode = generateFileCode();
         
@@ -112,7 +123,7 @@ public class AttachServiceImpl implements AttachService {
         task.setFileMd5(fileMd5);
         task.setChunkSize(chunkSize);
         task.setTotalChunks(totalChunks);
-        task.setStatus("uploading");
+        task.setStatus("pending");
         task.setTableName(tableName);
         task.setPgmId(pgmId);
         task.setUploadedChunks(new ArrayList<>());
@@ -145,47 +156,65 @@ public class AttachServiceImpl implements AttachService {
             return AttachResult.error("文件编码不能为空");
         }
         
-        if (StringUtils.isBlank(chunkNumStr)) {
-            return AttachResult.error("分片编号不能为空");
-        }
-        
         UploadTask task = taskRepository.findByFileCode(fileCode);
         if (task == null) {
             return AttachResult.error("上传任务不存在：" + fileCode);
         }
         
-        int chunkNum;
-        try {
-            chunkNum = Integer.parseInt(chunkNumStr);
-        } catch (NumberFormatException e) {
-            return AttachResult.error("分片编号格式错误");
+        int chunkNum = 0;
+        if (StringUtils.isNotBlank(chunkNumStr)) {
+            try {
+                chunkNum = Integer.parseInt(chunkNumStr);
+            } catch (NumberFormatException e) {
+                return AttachResult.error("分片编号格式错误");
+            }
         }
         
-        if (chunkNum < 0 || chunkNum >= task.getTotalChunks()) {
+        if (task.getTotalChunks() > 1 && (chunkNum < 0 || chunkNum >= task.getTotalChunks())) {
             return AttachResult.error("分片编号超出范围");
         }
         
         try {
-            boolean saved = fileStorageService.saveChunk(fileCode, chunkNum, file.getInputStream());
+            AttachParam param = new AttachParam();
+            param.setFileCode(fileCode);
+            param.setInputStream(file.getInputStream());
+            param.setFileSize(String.valueOf(file.getSize()));
+            param.setName(task.getFileName());
+            param.setFilePath(serviceParams.getParameter("filePath"));
+            param.setChunkNo(String.valueOf(chunkNum));
+            param.setChunkQty(String.valueOf(task.getTotalChunks()));
             
-            if (!saved) {
-                return AttachResult.error("分片保存失败");
+            AttachResult result = attachBusiness.upload(param);
+            
+            if (result.isSuccess()) {
+                if (!task.getUploadedChunks().contains(chunkNum)) {
+                    task.addUploadedChunk(chunkNum);
+                }
+                task.setStatus("uploading");
+                task.setUpdateTime(LocalDateTime.now());
+                taskRepository.update(task);
+                
+                logger.info("分片上传成功：fileCode={}, chunkNum={}, totalChunks={}", 
+                        fileCode, chunkNum, task.getTotalChunks());
+                
+                Map<String, Object> data = new HashMap<>();
+                data.put("chunkNum", chunkNum);
+                data.put("chunkSize", file.getSize());
+                data.put("uploadedChunks", task.getUploadedChunks());
+                data.put("progress", task.getProgress());
+                data.put("fileKey", result.getCallbackData());
+                
+                if (task.isAllChunksUploaded()) {
+                    data.put("completed", true);
+                    data.put("fileKey", result.getCallbackData());
+                }
+                
+                return AttachResult.success("分片上传成功", data);
+            } else {
+                logger.error("分片上传失败：fileCode={}, chunkNum={}, message={}", 
+                        fileCode, chunkNum, result.getMessage());
+                return AttachResult.error("分片上传失败：" + result.getMessage());
             }
-            
-            task.addUploadedChunk(chunkNum);
-            task.setUpdateTime(LocalDateTime.now());
-            taskRepository.update(task);
-            
-            logger.info("分片上传成功：fileCode={}, chunkNum={}, totalChunks={}", 
-                    fileCode, chunkNum, task.getTotalChunks());
-            
-            Map<String, Object> data = new HashMap<>();
-            data.put("chunkNum", chunkNum);
-            data.put("chunkSize", file.getSize());
-            data.put("uploadedChunks", task.getUploadedChunks());
-            data.put("progress", task.getProgress());
-            
-            return AttachResult.success("分片上传成功", data);
             
         } catch (Exception e) {
             logger.error("分片上传失败：fileCode=" + fileCode + ", chunkNum=" + chunkNum, e);
@@ -204,31 +233,22 @@ public class AttachServiceImpl implements AttachService {
             return AttachResult.error("上传任务不存在：" + fileCode);
         }
         
-        if (!task.isAllChunksUploaded()) {
+        if (!task.isAllChunksUploaded() && task.getTotalChunks() > 1) {
             int missing = task.getTotalChunks() - task.getUploadedChunks().size();
             return AttachResult.error("还有 " + missing + " 个分片未上传");
         }
         
-        String filePath = fileStorageService.mergeChunks(fileCode, task.getTotalChunks(), task.getFileName());
-        
-        if (filePath == null) {
-            task.setStatus("failed");
-            task.setUpdateTime(LocalDateTime.now());
-            taskRepository.update(task);
-            return AttachResult.error("分片合并失败");
-        }
-        
-        task.setFilePath(filePath);
         task.setStatus("completed");
         task.setUpdateTime(LocalDateTime.now());
         taskRepository.update(task);
         
-        logger.info("分片合并成功：fileCode={}, filePath={}", fileCode, filePath);
+        logger.info("分片合并成功：fileCode={}", fileCode);
         
         Map<String, Object> data = new HashMap<>();
-        data.put("filePath", filePath);
-        data.put("fileSize", task.getFileSize());
+        data.put("filePath", task.getFilePath());
+        data.put("fileCode", fileCode);
         data.put("fileName", task.getFileName());
+        data.put("fileSize", task.getFileSize());
         
         return AttachResult.success("文件上传完成", data);
     }
@@ -247,8 +267,6 @@ public class AttachServiceImpl implements AttachService {
             return false;
         }
         
-        fileStorageService.deleteChunks(fileCode);
-        
         UploadTask task = taskRepository.findByFileCode(fileCode);
         if (task != null) {
             task.setStatus("cancelled");
@@ -266,8 +284,6 @@ public class AttachServiceImpl implements AttachService {
             return false;
         }
         
-        fileStorageService.deleteChunks(fileCode);
-        
         boolean deleted = taskRepository.deleteByFileCode(fileCode);
         
         if (deleted) {
@@ -280,7 +296,6 @@ public class AttachServiceImpl implements AttachService {
     @Scheduled(fixedRateString = "${upload.cleanup-interval:86400000}")
     public void cleanupExpiredTasks() {
         logger.info("开始清理过期上传任务");
-        fileStorageService.cleanupExpiredChunks(cleanupInterval);
         
         List<UploadTask> pendingTasks = taskRepository.findByStatus("uploading");
         LocalDateTime expireTime = LocalDateTime.now().minusHours(24);
@@ -308,5 +323,14 @@ public class AttachServiceImpl implements AttachService {
             return "";
         }
         return fileName.substring(lastDot + 1);
+    }
+    
+    public Map<String, String> getStoreConfig(String appId) {
+        Map<String, String> config = new HashMap<>();
+        config.put("HOST_ADR", "http://localhost:8080");
+        config.put("ACCESSKEY_SHT", "default-token");
+        config.put("SECRETKEY_SHT", "default-secret");
+        config.put("BUCKET_SHT", "default-bucket");
+        return config;
     }
 }

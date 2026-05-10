@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>分片文件上传系统</title>
+    <title>数据平台文件上传系统</title>
     <link rel="stylesheet" href="https://unpkg.com/element-plus@2.3.14/dist/index.css">
     <script src="https://unpkg.com/vue@3.3.4/dist/vue.global.prod.js"></script>
     <script src="https://unpkg.com/element-plus@2.3.14/dist/index.full.js"></script>
@@ -15,14 +15,14 @@
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
             font-family: 'Helvetica Neue', 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
         }
-        
+
         .app-container {
             max-width: 1200px;
             margin: 0 auto;
@@ -31,47 +31,47 @@
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             overflow: hidden;
         }
-        
+
         .header {
             background: linear-gradient(135deg, #409eff 0%, #337ecc 100%);
             color: white;
             padding: 30px 40px;
             text-align: center;
         }
-        
+
         .header h1 {
             font-size: 28px;
             font-weight: 600;
             margin-bottom: 8px;
             letter-spacing: 2px;
         }
-        
+
         .header p {
             font-size: 14px;
             opacity: 0.9;
         }
-        
+
         .main-content {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 0;
         }
-        
+
         @media (max-width: 768px) {
             .main-content {
                 grid-template-columns: 1fr;
             }
         }
-        
+
         .upload-section {
             padding: 40px;
             border-right: 1px solid #ebeef5;
         }
-        
+
         .upload-section:last-child {
             border-right: none;
         }
-        
+
         .section-title {
             font-size: 18px;
             font-weight: 600;
@@ -81,7 +81,7 @@
             align-items: center;
             gap: 8px;
         }
-        
+
         .upload-area {
             border: 2px dashed #dcdfe6;
             border-radius: 12px;
@@ -91,70 +91,74 @@
             cursor: pointer;
             background: #fafafa;
         }
-        
+
         .upload-area:hover {
             border-color: #409eff;
             background: #ecf5ff;
         }
-        
+
         .upload-area.dragover {
             border-color: #409eff;
             background: #ecf5ff;
             transform: scale(1.02);
         }
-        
+
         .upload-icon {
             font-size: 64px;
             color: #409eff;
             margin-bottom: 20px;
         }
-        
+
         .upload-text {
             font-size: 16px;
             color: #606266;
             margin-bottom: 10px;
         }
-        
+
         .upload-hint {
             font-size: 12px;
             color: #909399;
         }
-        
+
+        .upload-hint strong {
+            color: #409eff;
+        }
+
         .file-input {
             display: none;
         }
-        
+
         .upload-stats {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 16px;
             margin-top: 30px;
         }
-        
+
         .stat-card {
             background: linear-gradient(135deg, #f0f9eb 0%, #e1f3d8 100%);
             border-radius: 8px;
             padding: 20px;
             text-align: center;
         }
-        
+
         .stat-value {
             font-size: 28px;
             font-weight: 700;
             color: #67c23a;
         }
-        
+
         .stat-label {
             font-size: 12px;
             color: #909399;
             margin-top: 4px;
         }
-        
+
         .upload-list {
             max-height: 600px;
             overflow-y: auto;
         }
-        
+
         .upload-item {
             background: #fff;
             border: 1px solid #ebeef5;
@@ -163,28 +167,28 @@
             margin-bottom: 12px;
             transition: all 0.3s ease;
         }
-        
+
         .upload-item:hover {
             box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
         }
-        
+
         .file-info {
             display: flex;
             align-items: center;
             gap: 12px;
             margin-bottom: 12px;
         }
-        
+
         .file-icon {
             font-size: 32px;
             color: #409eff;
         }
-        
+
         .file-details {
             flex: 1;
             min-width: 0;
         }
-        
+
         .file-name {
             font-size: 14px;
             font-weight: 500;
@@ -193,50 +197,70 @@
             text-overflow: ellipsis;
             white-space: nowrap;
         }
-        
+
         .file-size {
             font-size: 12px;
             color: #909399;
             margin-top: 4px;
         }
-        
+
+        .upload-method {
+            font-size: 11px;
+            color: #909399;
+            padding: 2px 8px;
+            background: #f4f4f5;
+            border-radius: 4px;
+            margin-top: 4px;
+            display: inline-block;
+        }
+
+        .upload-method.v2 {
+            background: #ecf5ff;
+            color: #409eff;
+        }
+
+        .upload-method.v1 {
+            background: #fdf6ec;
+            color: #e6a23c;
+        }
+
         .upload-progress {
             margin-bottom: 12px;
         }
-        
+
         .progress-info {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 6px;
         }
-        
+
         .progress-text {
             font-size: 12px;
             color: #606266;
         }
-        
+
         .progress-percent {
             font-size: 14px;
             font-weight: 600;
             color: #409eff;
         }
-        
+
         .el-progress-bar__outer {
             border-radius: 10px;
         }
-        
+
         .el-progress-bar__inner {
             border-radius: 10px;
             transition: width 0.3s ease;
         }
-        
+
         .upload-actions {
             display: flex;
             gap: 8px;
             justify-content: flex-end;
         }
-        
+
         .status-badge {
             display: inline-flex;
             align-items: center;
@@ -246,43 +270,48 @@
             font-size: 12px;
             font-weight: 500;
         }
-        
+
+        .status-pending {
+            background: #f4f4f5;
+            color: #909399;
+        }
+
         .status-uploading {
             background: #ecf5ff;
             color: #409eff;
         }
-        
+
         .status-paused {
             background: #fdf6ec;
             color: #e6a23c;
         }
-        
+
         .status-completed {
             background: #f0f9eb;
             color: #67c23a;
         }
-        
+
         .status-failed {
             background: #fef0f0;
             color: #f56c6c;
         }
-        
+
         .empty-state {
             text-align: center;
             padding: 60px 20px;
             color: #909399;
         }
-        
+
         .empty-icon {
             font-size: 64px;
             margin-bottom: 16px;
             opacity: 0.5;
         }
-        
+
         .empty-text {
             font-size: 14px;
         }
-        
+
         .footer {
             padding: 20px 40px;
             background: #fafafa;
@@ -291,66 +320,52 @@
             justify-content: space-between;
             align-items: center;
         }
-        
+
         .footer-text {
             font-size: 12px;
             color: #909399;
         }
-        
-        .clear-btn {
-            background: #f56c6c;
-            border-color: #f56c6c;
-        }
-        
-        .clear-btn:hover {
-            background: #f78989;
-            border-color: #f78989;
-        }
-        
+
         .el-button--primary {
             background: #409eff;
             border-color: #409eff;
         }
-        
+
         .el-button--primary:hover {
             background: #66b1ff;
             border-color: #66b1ff;
         }
-        
+
         .el-button--success {
             background: #67c23a;
             border-color: #67c23a;
         }
-        
+
         .el-button--success:hover {
             background: #85ce61;
             border-color: #85ce61;
         }
-        
+
         .el-button--warning {
             background: #e6a23c;
             border-color: #e6a23c;
         }
-        
+
         .el-button--warning:hover {
             background: #ebb563;
             border-color: #ebb563;
         }
-        
+
         .el-button--danger {
             background: #f56c6c;
             border-color: #f56c6c;
         }
-        
+
         .el-button--danger:hover {
             background: #f78989;
             border-color: #f78989;
         }
-        
-        .el-message {
-            border-radius: 8px;
-        }
-        
+
         @keyframes pulse {
             0%, 100% {
                 opacity: 1;
@@ -359,11 +374,11 @@
                 opacity: 0.5;
             }
         }
-        
+
         .uploading-indicator {
             animation: pulse 1.5s ease-in-out infinite;
         }
-        
+
         @keyframes bounceIn {
             0% {
                 transform: scale(0.9);
@@ -377,9 +392,39 @@
                 opacity: 1;
             }
         }
-        
+
         .upload-item {
             animation: bounceIn 0.3s ease-out;
+        }
+
+        .config-info {
+            background: #f5f7fa;
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 20px;
+            font-size: 12px;
+            color: #606266;
+        }
+
+        .config-info h4 {
+            margin-bottom: 8px;
+            color: #303133;
+            font-size: 14px;
+        }
+
+        .config-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+        }
+
+        .config-label {
+            color: #909399;
+        }
+
+        .config-value {
+            color: #409eff;
+            font-weight: 500;
         }
     </style>
 </head>
@@ -387,19 +432,19 @@
     <div id="app">
         <div class="app-container">
             <div class="header">
-                <h1>📤 分片文件上传系统</h1>
-                <p>支持大文件分片上传、断点续传、并发上传</p>
+                <h1>📤 数据平台文件上传系统</h1>
+                <p>支持小文件流式上传（V2）和大文件分片上传（V1）</p>
             </div>
-            
+
             <div class="main-content">
                 <div class="upload-section">
                     <div class="section-title">
                         <span>⬆️</span>
                         <span>上传文件</span>
                     </div>
-                    
-                    <div 
-                        class="upload-area" 
+
+                    <div
+                        class="upload-area"
                         :class="{ dragover: isDragOver }"
                         @click="triggerFileInput"
                         @dragover.prevent="handleDragOver"
@@ -408,17 +453,23 @@
                     >
                         <div class="upload-icon">📁</div>
                         <div class="upload-text">点击或拖拽文件到此处上传</div>
-                        <div class="upload-hint">支持多文件上传，单个文件最大 2GB</div>
+                        <div class="upload-hint">
+                            <strong>≤100MB</strong> 使用V2流式上传 ·
+                            <strong>>100MB</strong> 使用V1分片上传
+                        </div>
+                        <div class="upload-hint" style="margin-top: 8px;">
+                            单个文件最大 2GB
+                        </div>
                     </div>
-                    
-                    <input 
-                        type="file" 
-                        class="file-input" 
-                        ref="fileInput" 
-                        multiple 
+
+                    <input
+                        type="file"
+                        class="file-input"
+                        ref="fileInput"
+                        multiple
                         @change="handleFileSelect"
                     >
-                    
+
                     <div class="upload-stats">
                         <div class="stat-card">
                             <div class="stat-value">{{ totalFiles }}</div>
@@ -429,17 +480,37 @@
                             <div class="stat-label">已完成</div>
                         </div>
                     </div>
+
+                    <div class="config-info">
+                        <h4>⚙️ 上传配置</h4>
+                        <div class="config-item">
+                            <span class="config-label">分片大小：</span>
+                            <span class="config-value">5 MB</span>
+                        </div>
+                        <div class="config-item">
+                            <span class="config-label">小文件阈值：</span>
+                            <span class="config-value">100 MB</span>
+                        </div>
+                        <div class="config-item">
+                            <span class="config-label">最大并发：</span>
+                            <span class="config-value">3 个分片</span>
+                        </div>
+                        <div class="config-item">
+                            <span class="config-label">重试次数：</span>
+                            <span class="config-value">3 次</span>
+                        </div>
+                    </div>
                 </div>
-                
+
                 <div class="upload-section">
                     <div class="section-title">
                         <span>📋</span>
                         <span>上传队列</span>
                     </div>
-                    
+
                     <div class="upload-list" v-if="uploadQueue.length > 0">
-                        <div 
-                            v-for="item in uploadQueue" 
+                        <div
+                            v-for="item in uploadQueue"
                             :key="item.fileCode"
                             class="upload-item"
                         >
@@ -448,8 +519,14 @@
                                 <div class="file-details">
                                     <div class="file-name" :title="item.fileName">{{ item.fileName }}</div>
                                     <div class="file-size">{{ formatFileSize(item.fileSize) }}</div>
+                                    <span
+                                        class="upload-method"
+                                        :class="item.uploadMethod"
+                                    >
+                                        {{ item.uploadMethod === 'v2' ? 'V2 流式上传' : 'V1 分片上传' }}
+                                    </span>
                                 </div>
-                                <span 
+                                <span
                                     class="status-badge"
                                     :class="'status-' + item.status"
                                 >
@@ -457,62 +534,68 @@
                                     <span v-else-if="item.status === 'completed'">✅</span>
                                     <span v-else-if="item.status === 'paused'">⏸️</span>
                                     <span v-else-if="item.status === 'failed'">❌</span>
+                                    <span v-else-if="item.status === 'pending'">⏰</span>
                                     {{ getStatusText(item.status) }}
                                 </span>
                             </div>
-                            
-                            <div class="upload-progress" v-if="item.status !== 'cancelled'">
+
+                            <div class="upload-progress" v-if="item.status !== 'cancelled' && item.status !== 'pending'">
                                 <div class="progress-info">
                                     <span class="progress-text">
-                                        {{ item.uploadedChunks || 0 }} / {{ item.totalChunks || 0 }} 分片
+                                        <template v-if="item.uploadMethod === 'v1'">
+                                            {{ item.uploadedChunks || 0 }} / {{ item.totalChunks || 0 }} 分片
+                                        </template>
+                                        <template v-else>
+                                            正在上传...
+                                        </template>
                                         <span v-if="item.status === 'uploading'">（并发上传中）</span>
                                     </span>
                                     <span class="progress-percent">{{ item.progress || 0 }}%</span>
                                 </div>
-                                <el-progress 
-                                    :percentage="item.progress || 0" 
+                                <el-progress
+                                    :percentage="item.progress || 0"
                                     :stroke-width="8"
                                     :show-text="false"
                                     :color="getProgressColor(item.progress)"
                                 />
                             </div>
-                            
+
                             <div class="upload-actions">
-                                <el-button 
-                                    v-if="item.status === 'uploading'" 
-                                    size="small" 
+                                <el-button
+                                    v-if="item.status === 'uploading'"
+                                    size="small"
                                     type="warning"
                                     @click="pauseUpload(item)"
                                 >
                                     ⏸️ 暂停
                                 </el-button>
-                                <el-button 
-                                    v-if="item.status === 'paused'" 
-                                    size="small" 
+                                <el-button
+                                    v-if="item.status === 'paused'"
+                                    size="small"
                                     type="success"
                                     @click="resumeUpload(item)"
                                 >
                                     ▶️ 继续
                                 </el-button>
-                                <el-button 
-                                    v-if="item.status === 'failed'" 
-                                    size="small" 
+                                <el-button
+                                    v-if="item.status === 'failed'"
+                                    size="small"
                                     type="primary"
                                     @click="retryUpload(item)"
                                 >
                                     🔄 重试
                                 </el-button>
-                                <el-button 
-                                    v-if="item.status === 'completed'" 
-                                    size="small" 
+                                <el-button
+                                    v-if="item.status === 'completed'"
+                                    size="small"
                                     type="success"
                                     disabled
                                 >
                                     ✅ 完成
                                 </el-button>
-                                <el-button 
-                                    v-if="item.status !== 'completed'" 
-                                    size="small" 
+                                <el-button
+                                    v-if="item.status !== 'completed'"
+                                    size="small"
                                     type="danger"
                                     @click="cancelUpload(item)"
                                 >
@@ -521,21 +604,21 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="empty-state" v-else>
                         <div class="empty-icon">📭</div>
                         <div class="empty-text">暂无上传任务</div>
                     </div>
                 </div>
             </div>
-            
+
             <div class="footer">
                 <div class="footer-text">
-                    当前配置：分片大小 5MB，最多 3 个并发上传
+                    💡 小文件直接上传，大文件分片传输，支持断点续传
                 </div>
-                <el-button 
-                    v-if="uploadQueue.length > 0" 
-                    size="small" 
+                <el-button
+                    v-if="uploadQueue.length > 0"
+                    size="small"
                     type="danger"
                     @click="clearCompleted"
                 >
@@ -547,35 +630,36 @@
 
     <script>
         const { createApp, ref, computed, onMounted } = Vue;
-        
+
         const app = createApp({
             setup() {
                 const API_BASE = 'http://localhost:8080/api/upload';
                 const CHUNK_SIZE = 5 * 1024 * 1024;
+                const MAX_STREAM_SIZE = 100 * 1024 * 1024;
                 const MAX_CONCURRENT_CHUNKS = 3;
                 const MAX_RETRIES = 3;
-                
+
                 const fileInput = ref(null);
                 const uploadQueue = ref([]);
                 const isDragOver = ref(false);
-                
+
                 const totalFiles = computed(() => uploadQueue.value.length);
-                const completedFiles = computed(() => 
+                const completedFiles = computed(() =>
                     uploadQueue.value.filter(item => item.status === 'completed').length
                 );
-                
+
                 const triggerFileInput = () => {
                     fileInput.value.click();
                 };
-                
+
                 const handleDragOver = () => {
                     isDragOver.value = true;
                 };
-                
+
                 const handleDragLeave = () => {
                     isDragOver.value = false;
                 };
-                
+
                 const handleDrop = (e) => {
                     isDragOver.value = false;
                     const files = Array.from(e.dataTransfer.files);
@@ -583,7 +667,7 @@
                         files.forEach(file => startUpload(file));
                     }
                 };
-                
+
                 const handleFileSelect = (e) => {
                     const files = Array.from(e.target.files);
                     if (files.length > 0) {
@@ -591,124 +675,166 @@
                     }
                     e.target.value = '';
                 };
-                
+
                 const startUpload = async (file) => {
                     if (file.size > 2 * 1024 * 1024 * 1024) {
                         ElementPlus.ElMessage.error('文件大小超过 2GB 限制');
                         return;
                     }
-                    
+
+                    const uploadMethod = file.size <= MAX_STREAM_SIZE ? 'v2' : 'v1';
+                    const totalChunks = uploadMethod === 'v1' ? Math.ceil(file.size / CHUNK_SIZE) : 1;
+
+                    const taskItem = {
+                        fileCode: null,
+                        file: file,
+                        fileName: file.name,
+                        fileSize: file.size,
+                        totalChunks: totalChunks,
+                        uploadedChunks: 0,
+                        progress: 0,
+                        status: 'pending',
+                        uploadMethod: uploadMethod,
+                        pausedChunks: [],
+                        failedChunks: [],
+                        resolveUpload: null
+                    };
+
+                    uploadQueue.value.push(taskItem);
+
                     try {
                         const fileMd5 = await calculateFileMd5(file);
-                        const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
-                        
-                        const taskItem = {
-                            fileCode: null,
-                            file: file,
-                            fileName: file.name,
-                            fileSize: file.size,
-                            fileMd5: fileMd5,
-                            totalChunks: totalChunks,
-                            uploadedChunks: 0,
-                            progress: 0,
-                            status: 'uploading',
-                            pausedChunks: [],
-                            failedChunks: [],
-                            abortController: null
-                        };
-                        
-                        uploadQueue.value.push(taskItem);
-                        
-                        const initResult = await initUpload(taskItem);
-                        
+
+                        const initResult = await initUpload(taskItem, fileMd5);
+
                         if (initResult.success) {
                             taskItem.fileCode = initResult.data.fileCode;
-                            
-                            await uploadChunks(taskItem);
+                            taskItem.status = 'uploading';
+
+                            if (uploadMethod === 'v2') {
+                                await uploadSmallFile(taskItem);
+                            } else {
+                                await uploadLargeFile(taskItem);
+                            }
                         } else {
                             taskItem.status = 'failed';
                             ElementPlus.ElMessage.error('初始化上传失败：' + initResult.message);
                         }
                     } catch (error) {
-                        console.error('上传初始化失败:', error);
-                        ElementPlus.ElMessage.error('上传初始化失败');
+                        console.error('上传失败:', error);
+                        taskItem.status = 'failed';
+                        ElementPlus.ElMessage.error('上传失败：' + error.message);
                     }
                 };
-                
+
                 const calculateFileMd5 = (file) => {
                     return new Promise((resolve, reject) => {
                         const spark = new SparkMD5.ArrayBuffer();
                         const reader = new FileReader();
-                        
+
                         let offset = 0;
                         const chunkSize = CHUNK_SIZE;
-                        
+
                         const loadNextChunk = () => {
                             const slice = file.slice(offset, offset + chunkSize);
                             reader.readAsArrayBuffer(slice);
                         };
-                        
+
                         reader.onload = (e) => {
                             spark.append(e.target.result);
                             offset += chunkSize;
-                            
+
                             if (offset < file.size) {
                                 setTimeout(loadNextChunk, 0);
                             } else {
                                 resolve(spark.end());
                             }
                         };
-                        
+
                         reader.onerror = () => {
                             reject(new Error('MD5计算失败'));
                         };
-                        
+
                         loadNextChunk();
                     });
                 };
-                
-                const initUpload = async (taskItem) => {
+
+                const initUpload = async (taskItem, fileMd5) => {
                     try {
                         const response = await axios.post(`${API_BASE}/init`, {
                             fileName: taskItem.fileName,
                             fileSize: taskItem.fileSize.toString(),
-                            fileMd5: taskItem.fileMd5,
+                            fileMd5: fileMd5,
                             chunkSize: CHUNK_SIZE.toString(),
                             tableName: 'document',
                             pgmId: 'upload_001'
                         });
-                        
+
                         return response.data;
                     } catch (error) {
                         console.error('初始化上传请求失败:', error);
                         return { success: false, message: '网络请求失败' };
                     }
                 };
-                
-                const uploadChunks = async (taskItem) => {
+
+                const uploadSmallFile = async (taskItem) => {
+                    const formData = new FormData();
+                    formData.append('file', taskItem.file);
+                    formData.append('fileCode', taskItem.fileCode);
+                    formData.append('chunkNum', '0');
+                    formData.append('chunks', '1');
+                    formData.append('fileName', taskItem.fileName);
+                    formData.append('fileSize', taskItem.fileSize.toString());
+
+                    try {
+                        taskItem.progress = 50;
+
+                        const response = await axios.post(`${API_BASE}/chunk`, formData, {
+                            headers: {
+                                'Content-Type': 'multipart/form-data'
+                            },
+                            timeout: 300000
+                        });
+
+                        if (response.data.success) {
+                            taskItem.progress = 100;
+                            taskItem.uploadedChunks = 1;
+                            taskItem.status = 'completed';
+                            ElementPlus.ElMessage.success('文件上传成功！');
+                        } else {
+                            throw new Error(response.data.message || '上传失败');
+                        }
+                    } catch (error) {
+                        console.error('小文件上传失败:', error);
+                        taskItem.status = 'failed';
+                        ElementPlus.ElMessage.error('上传失败：' + error.message);
+                    }
+                };
+
+                const uploadLargeFile = async (taskItem) => {
                     const pendingChunks = [];
-                    
+
                     for (let i = 0; i < taskItem.totalChunks; i++) {
-                        if (!taskItem.pausedChunks.includes(i)) {
+                        if (!taskItem.pausedChunks.includes(i) && !taskItem.failedChunks.includes(i)) {
                             pendingChunks.push(i);
                         }
                     }
-                    
+
                     const uploadingChunks = [];
-                    
+
                     const uploadChunkWithRetry = async (chunkIndex) => {
                         let retries = 0;
-                        
+
                         while (retries < MAX_RETRIES) {
                             try {
                                 if (taskItem.status === 'paused') {
                                     return;
                                 }
-                                
+
                                 const start = chunkIndex * CHUNK_SIZE;
                                 const end = Math.min(start + CHUNK_SIZE, taskItem.fileSize);
                                 const chunk = taskItem.file.slice(start, end);
-                                
+
                                 const formData = new FormData();
                                 formData.append('file', chunk);
                                 formData.append('fileCode', taskItem.fileCode);
@@ -716,22 +842,18 @@
                                 formData.append('chunks', taskItem.totalChunks.toString());
                                 formData.append('fileName', taskItem.fileName);
                                 formData.append('fileSize', taskItem.fileSize.toString());
-                                
+
                                 const response = await axios.post(`${API_BASE}/chunk`, formData, {
                                     headers: {
                                         'Content-Type': 'multipart/form-data'
                                     },
                                     timeout: 30000
                                 });
-                                
+
                                 if (response.data.success) {
                                     taskItem.uploadedChunks++;
                                     taskItem.progress = Math.round((taskItem.uploadedChunks / taskItem.totalChunks) * 100);
-                                    
-                                    if (taskItem.uploadedChunks === taskItem.totalChunks) {
-                                        await mergeChunks(taskItem);
-                                    }
-                                    
+
                                     return;
                                 } else {
                                     throw new Error(response.data.message || '上传失败');
@@ -739,19 +861,19 @@
                             } catch (error) {
                                 retries++;
                                 console.error(`分片 ${chunkIndex} 上传失败 (尝试 ${retries}/${MAX_RETRIES}):`, error);
-                                
+
                                 if (retries >= MAX_RETRIES) {
                                     taskItem.status = 'failed';
                                     taskItem.failedChunks.push(chunkIndex);
                                     ElementPlus.ElMessage.error(`分片 ${chunkIndex} 上传失败`);
                                     return;
                                 }
-                                
+
                                 await new Promise(resolve => setTimeout(resolve, 1000 * retries));
                             }
                         }
                     };
-                    
+
                     const processChunks = async () => {
                         while (pendingChunks.length > 0 && taskItem.status === 'uploading') {
                             while (uploadingChunks.length < MAX_CONCURRENT_CHUNKS && pendingChunks.length > 0) {
@@ -764,20 +886,24 @@
                                 });
                                 uploadingChunks.push(promise);
                             }
-                            
+
                             if (uploadingChunks.length > 0) {
                                 await Promise.race(uploadingChunks);
                             }
                         }
-                        
-                        if (taskItem.status === 'uploading' && taskItem.uploadedChunks < taskItem.totalChunks) {
+
+                        if (taskItem.status === 'uploading') {
                             await Promise.all(uploadingChunks);
                         }
+
+                        if (taskItem.status === 'uploading' && taskItem.uploadedChunks === taskItem.totalChunks) {
+                            await mergeChunks(taskItem);
+                        }
                     };
-                    
+
                     await processChunks();
                 };
-                
+
                 const mergeChunks = async (taskItem) => {
                     try {
                         const response = await axios.post(`${API_BASE}/merge`, null, {
@@ -785,7 +911,7 @@
                                 fileCode: taskItem.fileCode
                             }
                         });
-                        
+
                         if (response.data.success) {
                             taskItem.status = 'completed';
                             taskItem.progress = 100;
@@ -801,30 +927,27 @@
                         ElementPlus.ElMessage.error('合并分片失败');
                     }
                 };
-                
+
                 const pauseUpload = (item) => {
                     item.status = 'paused';
-                    item.pausedChunks = [];
-                    for (let i = 0; i < item.totalChunks; i++) {
-                        if (i >= item.uploadedChunks) {
-                            item.pausedChunks.push(i);
-                        }
-                    }
                     ElementPlus.ElMessage.warning('上传已暂停');
                 };
-                
+
                 const resumeUpload = async (item) => {
                     item.status = 'uploading';
                     item.failedChunks = [];
-                    await uploadChunks(item);
+
+                    if (item.uploadMethod === 'v1') {
+                        await uploadLargeFile(item);
+                    } else {
+                        await uploadSmallFile(item);
+                    }
                 };
-                
+
                 const retryUpload = async (item) => {
-                    item.status = 'uploading';
-                    item.failedChunks = [];
-                    await uploadChunks(item);
+                    await resumeUpload(item);
                 };
-                
+
                 const cancelUpload = async (item) => {
                     try {
                         if (item.fileCode) {
@@ -834,12 +957,12 @@
                                 }
                             });
                         }
-                        
+
                         const index = uploadQueue.value.indexOf(item);
                         if (index > -1) {
                             uploadQueue.value.splice(index, 1);
                         }
-                        
+
                         ElementPlus.ElMessage.info('上传已取消');
                     } catch (error) {
                         console.error('取消上传失败:', error);
@@ -849,12 +972,12 @@
                         }
                     }
                 };
-                
+
                 const clearCompleted = () => {
                     uploadQueue.value = uploadQueue.value.filter(item => item.status !== 'completed');
                     ElementPlus.ElMessage.success('已清除已完成的任务');
                 };
-                
+
                 const formatFileSize = (bytes) => {
                     if (bytes === 0) return '0 B';
                     const k = 1024;
@@ -862,9 +985,10 @@
                     const i = Math.floor(Math.log(bytes) / Math.log(k));
                     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
                 };
-                
+
                 const getStatusText = (status) => {
                     const statusMap = {
+                        'pending': '等待中',
                         'uploading': '上传中',
                         'paused': '已暂停',
                         'completed': '已完成',
@@ -873,7 +997,7 @@
                     };
                     return statusMap[status] || status;
                 };
-                
+
                 const getProgressColor = (progress) => {
                     if (progress < 30) {
                         return '#409eff';
@@ -883,11 +1007,11 @@
                         return '#67c23a';
                     }
                 };
-                
+
                 onMounted(() => {
-                    console.log('文件上传系统已初始化');
+                    console.log('数据平台文件上传系统已初始化');
                 });
-                
+
                 return {
                     fileInput,
                     uploadQueue,
@@ -910,7 +1034,7 @@
                 };
             }
         });
-        
+
         app.use(ElementPlus);
         app.mount('#app');
     </script>
